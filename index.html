@@ -679,7 +679,7 @@
     if (!all[name]) {
       all[name] = {
         name: name, money: 0, joy: 0, spinsUsed: 0, inventory: [], 
-        spinLog: [], topupLog: [], // Thêm mảng này
+        spinLog: [], topupLog: [], 
         firstSingleDiscount: true, firstTenDiscount: true,
         activeDevice: DEVICE_ID, activeSince: Date.now(), firstLoginDone: false
       };
@@ -698,6 +698,10 @@
     saveAll(all);
 
     current = name;
+
+    // --- DÒNG QUAN TRỌNG: Lưu tên vào máy để không bị đăng xuất khi load lại trang ---
+    localStorage.setItem('__ev_noel_current_user', name);
+
     renderTopupLog();
     refreshPlayerPanel();
     renderAccountButtons();
@@ -712,7 +716,7 @@
   };
 
  // ------------------ Logic Đăng xuất với Xác nhận ------------------
-  btnLogout.onclick = () => {
+ btnLogout.onclick = () => {
     if (!current) return showPopup('Lỗi', 'Bạn chưa đăng nhập!');
 
     const html = `
@@ -738,10 +742,15 @@
         all[current] = acc;
         saveAll(all);
       }
+
+      // --- DÒNG QUAN TRỌNG: Xóa trí nhớ đăng nhập để không bị tự login khi F5 ---
+      localStorage.removeItem('__ev_noel_current_user');
+
       current = null;
       hidePopup(); // Đóng popup
       refreshPlayerPanel();
       renderAccountButtons();
+      renderTopupLog(); // Reset bảng nhật ký nạp về trạng thái chưa login
       showPopup('Thông báo', 'Bạn đã đăng xuất thành công. Hẹn gặp lại!');
     };
 
@@ -750,7 +759,7 @@
       hidePopup();
     };
   };
-
+    
   // ------------------ Logic Giải phóng tài khoản với Xác nhận ------------------
   btnReleaseAccount.onclick = () => {
     if (!current) return showPopup('Lỗi', 'Chưa đăng nhập tài khoản nào');
@@ -1120,11 +1129,21 @@ wheelJoyBtn.onclick = () => {
     draw();
   })();
 
+    // ------------------ Auto Login Logic ------------------
+  function autoLogin() {
+    const savedUser = localStorage.getItem('__ev_noel_current_user');
+    if (savedUser) {
+      // Gọi lại hàm attemptLogin với tên đã lưu
+      attemptLogin(savedUser);
+    }
+  }
+    
   // ------------------ Init ------------------
   initialize();
   renderAccountButtons();
   renderGachaTrees();
   refreshPlayerPanel();
+  autoLogin();
   renderTopupLog(); // Thêm dòng này
 
   setInterval(() => {
