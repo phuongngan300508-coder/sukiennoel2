@@ -348,8 +348,8 @@
         <div class="panel box" id="topupPanel">
           <h3>💳 Nạp Năng Lượng</h3>
           <p class="small" style="font-style: italic; opacity: 0.6; margin-bottom: 10px;">
-        Nhấn vào nút [?] góc màn hình để xem cách kiếm JoyPoint.
-    </p>
+            Nhấn vào nút [?] góc màn hình để xem cách kiếm JoyPoint.
+          </p>
           <div style="margin-top:8px">
             <input id="topMoneyInput" type="number" placeholder="Số tiền VNĐ" />
             <button class="btn" id="doTopMoney" style="width:100%;margin-top:8px">Xác nhận nạp tiền</button>
@@ -360,10 +360,17 @@
           </div>
         </div>
 
+        <div class="panel box" id="topupLogPanel">
+          <h3>📝 Nhật Ký Nạp</h3>
+          <div id="topupLogList" class="log" style="max-height: 200px; background: rgba(0,0,0,0.3);">
+            <div class="small" style="opacity:0.5; text-align:center; padding-top:10px;">Đăng nhập để xem lịch sử</div>
+          </div>
+        </div>
+
         <div class="panel box" id="inventoryPanel">
-    <h3>🎒 Kho Đồ</h3>
-    <div id="inventoryList" class="small" style="max-height: 400px; overflow-y: auto;">—</div>
-</div>
+          <h3>🎒 Kho Đồ</h3>
+          <div id="inventoryList" class="small" style="max-height: 400px; overflow-y: auto;">—</div>
+        </div>
       </div>
     </main>
 
@@ -598,6 +605,29 @@
     }
   }
 
+    function renderTopupLog() {
+    const logList = document.getElementById('topupLogList');
+    if (!current) {
+      logList.innerHTML = '<div class="small" style="opacity:0.5; text-align:center; padding-top:10px;">Đăng nhập để xem lịch sử</div>';
+      return;
+    }
+    const all = loadAll();
+    const acc = all[current];
+    const logs = acc.topupLog || [];
+
+    if (logs.length === 0) {
+      logList.innerHTML = '<div class="small" style="opacity:0.5; text-align:center; padding-top:10px;">Chưa có lịch sử nạp</div>';
+      return;
+    }
+
+    logList.innerHTML = logs.map(l => `
+      <div style="border-bottom: 1px solid rgba(255,255,255,0.05); padding: 5px 0; font-size: 11px;">
+        <span style="color: var(--text-muted)">[${l.time}]</span> 
+        <span style="color: ${l.type === 'VNĐ' ? '#fbbf24' : 'var(--accent)'}">+${formatN(l.amount)} ${l.type}</span>
+      </div>
+    `).reverse().join(''); // Đảo ngược để nạp mới nhất hiện lên đầu
+  }
+    
   function renderGachaTrees() {
     treesArea.innerHTML = gachaTrees.map(t => `<div class="tree-card">${t.name}<div style="font-size:12px;margin-top:6px">Tỉ lệ: ${(t.rate * 100).toFixed(2)}%</div></div>`).join('');
   }
@@ -611,7 +641,8 @@
 
     if (!all[name]) {
       all[name] = {
-        name: name, money: 0, joy: 0, spinsUsed: 0, inventory: [], spinLog: [],
+        name: name, money: 0, joy: 0, spinsUsed: 0, inventory: [], 
+        spinLog: [], topupLog: [], // Thêm mảng này
         firstSingleDiscount: true, firstTenDiscount: true,
         activeDevice: DEVICE_ID, activeSince: Date.now(), firstLoginDone: false
       };
@@ -630,6 +661,7 @@
     saveAll(all);
 
     current = name;
+    renderTopupLog();
     refreshPlayerPanel();
     renderAccountButtons();
 
@@ -863,13 +895,22 @@
     
     showPopup('Xác nhận nạp tiền', html);
 
-    // Nếu chọn ĐÃ BÁO -> Tiến hành nạp
     document.getElementById('confirmTopupYes').onclick = () => {
       hidePopup();
+      
+      // Logic ghi log mới
+      const all = loadAll();
+      const now = new Date();
+      const timeStr = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+      
+      if (!all[current].topupLog) all[current].topupLog = [];
+      all[current].topupLog.push({ amount: amount, type: type, time: timeStr });
+      saveAll(all);
+
       applyFunc();
+      renderTopupLog(); // Cập nhật danh sách log ngay lập tức
     };
 
-    // Nếu chọn CHƯA -> Thông báo từ chối
     document.getElementById('confirmTopupNo').onclick = () => {
       hidePopup();
       showPopup('Yêu cầu bị từ chối', 'Vui lòng báo cho quản lý trước khi thực hiện nạp tiền vào hệ thống!');
@@ -1040,6 +1081,7 @@ wheelJoyBtn.onclick = () => {
   renderAccountButtons();
   renderGachaTrees();
   refreshPlayerPanel();
+  renderTopupLog(); // Thêm dòng này
 
   setInterval(() => {
     if (!current) return;
