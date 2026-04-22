@@ -1,0 +1,1054 @@
+<!doctype html>
+
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Sự kiện Noel</title>
+  <style>
+   :root {
+      /* Bảng màu mới: Xanh dương sâu (Midnight Blue) phối Frost Blue */
+      --bg-deep: #0f172a; 
+      --bg-accent: #1e293b;
+      --card-bg: rgba(255, 255, 255, 0.05); /* Hiệu ứng kính */
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8; /* Xanh băng giá */
+      --accent-glow: rgba(56, 189, 248, 0.4);
+      --radius: 20px; /* Bo góc rộng hơn cho hiện đại */
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    * { box-sizing: border-box; transition: all 0.2s ease; }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      /* Background gradient 3 lớp tạo chiều sâu */
+      background: radial-gradient(circle at top right, #1e3a8a, transparent),
+                  radial-gradient(circle at bottom left, #0f172a, #020617);
+      background-attachment: fixed;
+      color: var(--text-main);
+      width: 100vw;
+      overflow-x: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    canvas#snow {
+      position: fixed;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.8;
+    }
+
+    #app { position: relative; z-index: 2; min-height: 100vh; display: flex; flex-direction: column; }
+
+    header {
+      padding: 30px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      justify-content: center;
+    }
+    header .logo {
+      width: 56px; height: 56px;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+    header h1 { margin: 0; font-size: 22px; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); }
+    header p { margin: 0; font-size: 13px; color: var(--text-muted); }
+
+    main { flex: 1; padding: 16px; display: grid; grid-template-columns: 280px 1fr 280px; gap: 20px; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+    /* Nâng cấp Panel thành Glassmorphism */
+    .panel {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 20px;
+      border-radius: var(--radius);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    .panel h3 { margin: 0 0 15px 0; color: var(--accent); font-size: 16px; display: flex; align-items: center; gap: 8px; }
+    .small { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+    /* Button Style: Hiện đại & Glow */
+    .btn {
+      display: inline-block;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, #0ea5e9, #2563eb);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 13px;
+      box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(14, 165, 233, 0.5); filter: brightness(1.1); }
+    .btn:active { transform: scale(0.98); }
+
+    .acct-btn {
+      display: block; width: 100%; padding: 10px; margin-bottom: 8px;
+      border-radius: 12px; border: 1px solid var(--glass-border);
+      background: rgba(255,255,255,0.03); color: var(--text-main);
+      font-weight: 600; text-align: left; cursor: pointer;
+    }
+    .acct-btn:hover { background: rgba(255,255,255,0.08); }
+
+    .login-input {
+      width: 100%; padding: 12px; border-radius: 12px;
+      border: 1px solid var(--glass-border); margin-top: 8px;
+      background: rgba(0,0,0,0.2); color: #fff; outline: none;
+    }
+
+    /* Gacha Grid & Cards */
+    #center { display: flex; flex-direction: column; gap: 20px; }
+    .gacha-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+
+    .tree-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--glass-border);
+      padding: 12px;
+      border-radius: 16px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 13px;
+      display: flex; flex-direction: column; justify-content: center;
+      min-height: 100px;
+      color: var(--text-main);
+    }
+    .tree-card:hover { border-color: var(--accent); background: rgba(56, 189, 248, 0.05); }
+
+    .log {
+      background: rgba(0,0,0,0.2); padding: 12px; border-radius: 12px;
+      max-height: 150px; overflow: auto; border: 1px solid var(--glass-border);
+      font-family: monospace; font-size: 12px; color: var(--accent);
+    }
+
+    /* Input Numbers */
+    input[type=number] {
+      width: 100%; padding: 12px; border-radius: 10px;
+      border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); color: #fff;
+    }
+
+    footer { padding: 20px; text-align: center; color: var(--text-muted); font-size: 13px; opacity: 0.7; }
+
+    /* Popup Upgrade */
+    .popup {
+      position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      z-index: 9999; min-width: 320px; max-width: 90vw;
+      background: #1e293b; color: #fff; padding: 24px;
+      border-radius: 24px; border: 1px solid var(--accent);
+      box-shadow: 0 0 50px rgba(0,0,0,0.8); display: none;
+      animation: popScale 0.3s ease-out;
+    }
+    @keyframes popScale { from { opacity: 0; transform: translate(-50%, -45%) scale(0.9); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+    
+    .popup h4 { margin: 0 0 12px 0; color: var(--accent); font-size: 18px; }
+    .btn-close { background: rgba(255,255,255,0.1); border: none; padding: 10px 20px; border-radius: 10px; color: #fff; cursor: pointer; }
+
+    /* Responsive */
+    /* Responsive cho máy tính bảng và điện thoại */
+    @media (max-width: 1100px) {
+      main { 
+        grid-template-columns: 1fr; 
+        display: flex; 
+        flex-direction: column; 
+        gap: 20px;
+      }
+
+      /* Thiết lập thứ tự hiển thị trên mobile */
+      #left { 
+        order: 1; /* Thông tin người chơi & Đăng nhập lên đầu tiên */
+      }
+      
+      #center { 
+        order: 2; /* Hai khu vực Game nằm ở giữa */
+      }
+
+      #right { 
+        order: 3; /* Nạp tiền và Kho đồ nằm ở dưới cùng */
+      }
+
+      .gacha-grid { 
+        grid-template-columns: repeat(3, 1fr); 
+      }
+    }
+
+    /* Tối ưu thêm cho điện thoại nhỏ */
+    @media (max-width: 600px) {
+      .gacha-grid { 
+        grid-template-columns: repeat(2, 1fr) !important; 
+      }
+      header { 
+        flex-direction: column; 
+        text-align: center; 
+        padding: 20px;
+      }
+      header .logo {
+        margin-bottom: 10px;
+      }
+    }
+    
+    /* Floating Action Button (Nút hỏi chấm) */
+    .btn-help {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #2563eb);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 0 20px var(--accent-glow);
+      z-index: 999;
+      border: 2px solid rgba(255,255,255,0.2);
+    }
+    .btn-help:hover {
+      transform: scale(1.1) rotate(15deg);
+      box-shadow: 0 0 30px var(--accent);
+    }
+
+    /* Định dạng nội dung hướng dẫn trong Popup */
+    .guide-content {
+      text-align: left;
+      max-height: 70vh;
+      overflow-y: auto;
+      padding-right: 10px;
+    }
+    .guide-section {
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid var(--glass-border);
+    }
+    .guide-section h5 {
+      color: var(--accent);
+      margin: 0 0 10px 0;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .guide-step {
+      background: rgba(255,255,255,0.05);
+      padding: 10px;
+      border-radius: 10px;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+    .highlight-joy { color: #fbbf24; font-weight: bold; }
+    
+    /* Căn giữa tiêu đề của Popup */
+    #popupTitle {
+      text-align: center;
+      width: 100%;
+      display: block;
+      letter-spacing: 1px;
+    }
+
+    /* Ẩn thanh cuộn vật lý nhưng vẫn cho phép cuộn nội dung */
+    .guide-content {
+      -ms-overflow-style: none;  /* IE và Edge */
+      scrollbar-width: none;     /* Firefox */
+    }
+    .guide-content::-webkit-scrollbar {
+      display: none;             /* Chrome, Safari, Opera */
+    }
+  </style>
+</head>
+<body>
+  <canvas id="snow"></canvas>
+  <div id="app">
+    <header>
+      <div class="logo">🎄</div>
+      <div>
+        <h1>SỰ KIỆN GIÁNG SINH</h1>
+        <p>Giáng sinh an lành - Nhiều quà tặng - Càng chơi càng trúng</p>
+      </div>
+    </header>
+
+    <main>
+      <div id="left">
+        <div class="panel box" id="playerPanel">
+          <h3>👤 Thông Tin Người Chơi</h3>
+          <div id="playerName" style="font-size: 1.1em; font-weight: 700;">Tên: —</div>
+          <div id="playerBalances" style="margin-top:12px; display: flex; flex-direction: column; gap: 5px;">
+            <div class="small">Tiền: <span id="moneyVal" style="color: #fbbf24; font-weight: bold;">0</span>₫</div>
+            <div class="small">JoyPoint: <span id="joyVal" style="color: var(--accent); font-weight: bold;">0</span></div>
+            <div class="small">Lượt Gacha: <span id="spinsVal">0/50</span></div>
+          </div>
+        </div>
+
+        <div class="panel box" id="settingsPanel">
+          <h3>⚙️ Cài đặt</h3>
+          <p class="small">Quản lý phiên đăng nhập của bạn.</p>
+          <button class="btn" id="btnReleaseAccount" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.5);">Giải phóng tài khoản</button>
+        </div>
+
+        <div class="panel box" id="loginPanel">
+          <h3>🔐 Đăng nhập</h3>
+          <div class="small" style="margin-bottom: 8px;">Chọn tài khoản đã lưu lại bên dưới để đăng nhập nhanh:</div>
+          <div id="accountButtons"></div>
+          <input id="manualLogin" class="login-input" placeholder="Nhập tên người chơi..." />
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <button class="btn" id="btnManualLogin" style="flex:1">Đăng nhập</button>
+            <button class="btn" id="btnLogout" style="background:#475569; flex:1">Đăng xuất</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="center">
+        <div class="panel" id="gachaPanel">
+          <h3>🎁 Hộp Quà May Mắn</h3>
+          <div class="gacha-grid" id="treesArea"></div>
+          <div style="display:flex;gap:12px;margin-top:15px">
+            <button class="btn" id="spin1Btn" style="flex:1">Quay 1 lần (4500/5000Joy)</button>
+            <button class="btn" id="spin10Btn" style="flex:1; background: linear-gradient(135deg, #f59e0b, #d97706);">Quay 10 lần (45000/50000Joy)</button>
+          </div>
+          <div class="log" id="gachaLog" style="margin-top:15px"></div>
+        </div>
+
+        <div class="panel" id="wheelPanel">
+          <h3>🎡 Vòng Quay Skin</h3>
+          <div class="small" style="text-align: center; margin-bottom: 10px;">Mỗi người chơi chỉ được quay một lần.</div>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px; margin-bottom: 15px;">
+            <div class="small">• Alice Bé Gấu</div><div class="small">• Dextra Quận Chúa</div>
+            <div class="small">• Sinestrea Tiểu Thư</div><div class="small">• Valhein Hoàng Tử</div>
+            <div class="small">• Yorn Nam Thần</div><div class="small">• Ryoma Đặc Nhiệm</div>
+            <div class="small">• Wisp Máy Phát Quà</div><div class="small">• Ngộ Không Đặc Vụ</div>
+          </div>
+          <div style="display:flex;gap:12px;">
+            <button class="btn" id="wheelMoneyBtn" style="flex:1; background: #059669;">50,000₫ / Lượt</button>
+            <button class="btn" id="wheelJoyBtn" style="flex:1;">500,000 Joy / Lượt</button>
+          </div>
+          <div class="log" id="wheelLog" style="margin-top:15px"></div>
+        </div>
+      </div>
+
+      <div id="right">
+        <div class="panel box" id="topupPanel">
+          <h3>💳 Nạp Năng Lượng</h3>
+          <p class="small" style="font-style: italic; opacity: 0.6; margin-bottom: 10px;">
+        Nhấn vào nút [?] góc màn hình để xem cách kiếm JoyPoint.
+    </p>
+          <div style="margin-top:8px">
+            <input id="topMoneyInput" type="number" placeholder="Số tiền VNĐ" />
+            <button class="btn" id="doTopMoney" style="width:100%;margin-top:8px">Xác nhận nạp tiền</button>
+          </div>
+          <div style="margin-top:15px">
+            <input id="topJoyInput" type="number" placeholder="Số JoyPoint" />
+            <button class="btn" id="doTopJoy" style="width:100%;margin-top:8px">Xác nhận nạp Joy</button>
+          </div>
+        </div>
+
+        <div class="panel box" id="inventoryPanel">
+    <h3>🎒 Kho Đồ</h3>
+    <div id="inventoryList" class="small" style="max-height: 400px; overflow-y: auto;">—</div>
+</div>
+      </div>
+    </main>
+
+    <footer>Merry Christmas • Nơi ước mơ bạn sẽ thành hiện thực</footer>
+
+    <div class="popup" id="centerPopup">
+      <h4 id="popupTitle">Thông báo</h4>
+      <div id="popupContent" style="margin-bottom: 20px; font-size: 14px; opacity: 0.9;"></div>
+      <div class="row" style="display: flex; justify-content: flex-end;">
+        <button class="btn-close" id="popupClose">Xác nhận</button>
+      </div>
+    </div>
+  </div> 
+  
+  <div class="btn-help" id="btnOpenGuide" title="Hướng dẫn sử dụng">?</div>
+  <script>
+  // ------------------ Storage & Accounts ------------------
+  const DEVICE_KEY = '__ev_noel_dev';
+  const STORAGE_KEY = '__ev_noel_accounts_v2';
+
+  function getDeviceId() {
+    let id = sessionStorage.getItem(DEVICE_KEY);
+    if (!id) {
+      id = 'dev-' + Math.random().toString(36).slice(2, 12);
+      sessionStorage.setItem(DEVICE_KEY, id);
+    }
+    return id;
+  }
+  const DEVICE_ID = getDeviceId();
+  
+  // ------------------ Logic Hướng Dẫn Sử Dụng (Sinh động & Căn giữa) ------------------
+  const btnOpenGuide = document.getElementById('btnOpenGuide');
+
+  const guideHtml = `
+    <div class="guide-content">
+      <div class="guide-section">
+        <h5>🎄 Cơ chế Sự kiện</h5>
+        <p class="small">✨ Sự kiện Noel là nơi bạn sử dụng <span class="highlight-joy">JoyPoint</span> tích lũy được để đổi lấy các trang phục (Skin) giới hạn và quà tặng giá trị.</p>
+      </div>
+
+      <div class="guide-section">
+        <h5>🔐 TÀI KHOẢN & LƯU TRỮ</h5>
+        <p class="small">👤 <b>Đăng nhập:</b> Hệ thống sử dụng cơ chế lưu trữ theo <b>Tên Người Chơi</b>. Chỉ cần nhập đúng tên, toàn bộ dữ liệu của bạn sẽ được tải lại.</p>
+        <p class="small">💾 <b>Lưu trữ vĩnh viễn:</b> Tiền, JoyPoint và Kho đồ được lưu trực tiếp trên trình duyệt của bạn. Bạn có thể tắt web và quay lại bất cứ lúc nào mà không mất dữ liệu.</p>
+      </div>
+      
+      <div class="guide-section">
+        <h5>🛠️ Cách kiếm JoyPoint (Quan trọng)</h5>
+        <div class="guide-step">
+          1️⃣ Truy cập minigame chính <b>"SANTA'S WORKSHOP"</b>.<br>
+          2️⃣ Thực hiện các nhiệm vụ và cày cuốc để tích lũy JoyPoint.<br>
+          3️⃣ <b>Chụp màn hình</b> lại số JoyPoint bạn đã kiếm được.<br>
+          4️⃣ Gửi hình ảnh cho <b>Quản lý Minigame</b> để xác nhận.<br>
+          5️⃣ Sau khi được duyệt, bạn dùng tính năng "Nạp Năng Lượng" để nhập số Joy tương ứng vào đây.
+        </div>
+      </div>
+
+      <div class="guide-section">
+        <h5>🎁 Hộp Quà & Vòng Quay</h5>
+        <p class="small">🎲 <b>Hộp Quà:</b> Tỉ lệ rơi ra Skin đặc vụ cực hiếm hoặc hoàn lại JoyPoint.</p>
+        <p class="small">🎡 <b>Vòng Quay Skin:</b> Đảm bảo nhận 1 trong các Skin Noel khi quay bằng Tiền hoặc JoyPoint (Giá cao hơn nhưng chắc chắn trúng).</p>
+      </div>
+
+      <div class="guide-section" style="border-bottom: none;">
+        <h5>🎒 Lưu ý về Kho đồ</h5>
+        <p class="small">📦 Tất cả vật phẩm trúng thưởng sẽ nằm trong <b>Kho đồ</b>. Hãy đảm bảo bạn không "Giải phóng tài khoản" nếu không muốn mất toàn bộ vật phẩm đã trúng.</p>
+      </div>
+    </div>
+  `;
+
+  btnOpenGuide.onclick = () => {
+    // Tiêu đề được thêm icon và sẽ căn giữa nhờ CSS ở trên
+    showPopup('📖 HƯỚNG DẪN SỰ KIỆN 📖', guideHtml);
+  };
+  
+
+  function initialize() {
+    if (!localStorage.getItem(STORAGE_KEY)) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({}));
+    }
+  }
+
+  function loadAll() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}
+    } catch (e) {
+      console.error(e);
+      return {}
+    }
+  }
+
+  function saveAll(obj) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(obj));
+  }
+
+  // ------------------ UI elements ------------------
+  const accountButtons = document.getElementById('accountButtons');
+  const manualLogin = document.getElementById('manualLogin');
+  const btnManualLogin = document.getElementById('btnManualLogin');
+  const btnLogout = document.getElementById('btnLogout');
+  const btnReleaseAccount = document.getElementById('btnReleaseAccount');
+  const playerNameEl = document.getElementById('playerName');
+  const moneyVal = document.getElementById('moneyVal');
+  const joyVal = document.getElementById('joyVal');
+  const spinsVal = document.getElementById('spinsVal');
+  const inventoryList = document.getElementById('inventoryList');
+  const treesArea = document.getElementById('treesArea');
+  const gachaLog = document.getElementById('gachaLog');
+  const wheelLog = document.getElementById('wheelLog');
+
+  const topMoneyInput = document.getElementById('topMoneyInput');
+  const topJoyInput = document.getElementById('topJoyInput');
+  const doTopMoney = document.getElementById('doTopMoney');
+  const doTopJoy = document.getElementById('doTopJoy');
+
+  const spin1Btn = document.getElementById('spin1Btn');
+  const spin10Btn = document.getElementById('spin10Btn');
+  const wheelMoneyBtn = document.getElementById('wheelMoneyBtn');
+  const wheelJoyBtn = document.getElementById('wheelJoyBtn');
+
+  const popup = document.getElementById('centerPopup');
+  const popupTitle = document.getElementById('popupTitle');
+  const popupContent = document.getElementById('popupContent');
+  document.getElementById('popupClose').onclick = () => {
+    hidePopup();
+  };
+
+  let current = null;
+
+  // ------------------ Gacha / Wheel Data ------------------
+  const gachaTrees = [
+    { name: 'Qi đặc vụ cáo tuyết 399qh', rate: 0.002 },
+    { name: 'Lauriel hoa khôi giáng sinh 375qh', rate: 0.003 },
+    { name: '1,000 Joypoint', rate: 0.15 },
+    { name: '750 Joypoint', rate: 0.20 },
+    { name: '500 Joypoint', rate: 0.645 }
+  ];
+
+  const wheelSkins = [
+    'Alice bé gấu tuyết 199qh', 'Dextra quận chúa tuyết 199qh', 'Sinestrea tiểu thư băng giá 199qh', 'Valhein hoàng tử băng 199qh',
+    'Yorn nam thần giáng sinh 199qh', 'Ryoma đặc nhiệm giáng sinh 199qh', 'Wisp máy phát quà 199qh', 'Ngộ không đặc vụ băng hầu 199qh'
+  ];
+
+  // ------------------ Helpers ------------------
+  function showPopup(title, contentHtml) {
+    popupTitle.innerText = title;
+    popupContent.innerHTML = contentHtml;
+    popup.style.display = 'block';
+  }
+
+  function hidePopup() {
+    popup.style.display = 'none';
+    popupContent.innerHTML = '';
+  }
+
+  function formatN(n) {
+    return n.toLocaleString('en-US');
+  }
+
+  // ------------------ Render functions ------------------
+  function renderAccountButtons() {
+    const all = loadAll();
+    accountButtons.innerHTML = '';
+    const savedNames = Object.keys(all);
+
+    if (savedNames.length === 0) {
+      accountButtons.innerHTML = '<div class="small" style="color:#fff; opacity:0.6">Chưa có tài khoản nào.</div>';
+      return;
+    }
+
+    savedNames.forEach(name => {
+      const btn = document.createElement('button');
+      btn.className = 'acct-btn';
+      const acc = all[name];
+      const isLockedByOther = acc.activeDevice && acc.activeDevice !== DEVICE_ID && (Date.now() - acc.activeSince < 10000);
+
+      if (isLockedByOther) {
+        btn.classList.add('locked');
+        btn.innerText = name + ' (Đang dùng)';
+        btn.disabled = true;
+      } else {
+        btn.innerText = (current === name) ? '✔️ ' + name : name;
+        btn.disabled = false;
+      }
+
+      btn.onclick = () => {
+        manualLogin.value = name;
+        attemptLogin(name);
+      };
+      accountButtons.appendChild(btn);
+    });
+  }
+
+ function refreshPlayerPanel() {
+    if (!current) {
+      playerNameEl.innerText = 'Tên: —';
+      moneyVal.innerText = 0;
+      joyVal.innerText = 0;
+      spinsVal.innerText = '0/50';
+      inventoryList.innerText = '—';
+      return;
+    }
+    const all = loadAll();
+    const acc = all[current];
+    if (!acc) return;
+
+    playerNameEl.innerText = 'Tên: ' + acc.name;
+    moneyVal.innerText = formatN(acc.money);
+    joyVal.innerText = formatN(acc.joy);
+    spinsVal.innerText = (acc.spinsUsed) + '/50';
+
+    // Xử lý hiển thị kho đồ: Thêm CSS để không bị tràn màn hình
+    if (acc.inventory.length > 0) {
+      inventoryList.style.maxHeight = "200px"; // Giới hạn chiều cao kho
+      inventoryList.style.overflowY = "auto";  // Cho phép cuộn dọc nếu nhiều đồ
+      
+      inventoryList.innerHTML = acc.inventory.map(i => `
+        <div style="
+          word-break: break-all; 
+          padding: 4px 0; 
+          border-bottom: 1px solid rgba(255,255,255,0.05);
+          font-size: 12px;
+        ">
+          <b>${i.item}</b> 
+          <br>
+          <span style="font-size:10px; opacity:0.6">${new Date(i.ts).toLocaleTimeString()}</span>
+        </div>
+      `).join('');
+    } else {
+      inventoryList.innerText = '—';
+      inventoryList.style.maxHeight = "none";
+    }
+  }
+
+  function renderGachaTrees() {
+    treesArea.innerHTML = gachaTrees.map(t => `<div class="tree-card">${t.name}<div style="font-size:12px;margin-top:6px">Tỉ lệ: ${(t.rate * 100).toFixed(2)}%</div></div>`).join('');
+  }
+
+  // ------------------ Login Logic ------------------
+  function attemptLogin(name) {
+    name = name.trim();
+    if (!name) return showPopup('Lỗi', 'Vui lòng nhập tên tài khoản');
+
+    const all = loadAll();
+
+    if (!all[name]) {
+      all[name] = {
+        name: name, money: 0, joy: 0, spinsUsed: 0, inventory: [], spinLog: [],
+        firstSingleDiscount: true, firstTenDiscount: true,
+        activeDevice: DEVICE_ID, activeSince: Date.now(), firstLoginDone: false
+      };
+    }
+
+    const acc = all[name];
+    if (acc.activeDevice && acc.activeDevice !== DEVICE_ID) {
+      if (Date.now() - acc.activeSince < 10000) {
+        return showPopup('Tài khoản đang bận', 'Tài khoản này đang được sử dụng ở thiết bị khác.');
+      }
+    }
+
+    acc.activeDevice = DEVICE_ID;
+    acc.activeSince = Date.now();
+    all[name] = acc;
+    saveAll(all);
+
+    current = name;
+    refreshPlayerPanel();
+    renderAccountButtons();
+
+    if (!acc.firstLoginDone) {
+      setTimeout(() => showOwnershipModal(), 200);
+    }
+  }
+
+  btnManualLogin.onclick = () => {
+    attemptLogin(manualLogin.value);
+  };
+
+ // ------------------ Logic Đăng xuất với Xác nhận ------------------
+  btnLogout.onclick = () => {
+    if (!current) return showPopup('Lỗi', 'Bạn chưa đăng nhập!');
+
+    const html = `
+      <div style="text-align:left">
+        <p style="margin-bottom:15px; line-height:1.6">
+          Bạn có chắc chắn muốn <b>đăng xuất</b> khỏi tài khoản <b>${current}</b> không?
+        </p>
+        <div style="display:flex; gap:10px; margin-top:15px">
+          <button class="btn" id="confirmLogoutYes" style="flex:1; background:#475569">Đăng xuất</button>
+          <button class="btn" id="confirmLogoutNo" style="flex:1; background:rgba(255,255,255,0.1); border:1px solid var(--glass-border)">Ở lại</button>
+        </div>
+      </div>
+    `;
+
+    showPopup('Xác nhận đăng xuất', html);
+
+    // Nếu chọn CÓ -> Thực hiện đăng xuất
+    document.getElementById('confirmLogoutYes').onclick = () => {
+      const all = loadAll();
+      const acc = all[current];
+      if (acc) {
+        acc.activeDevice = null;
+        all[current] = acc;
+        saveAll(all);
+      }
+      current = null;
+      hidePopup(); // Đóng popup
+      refreshPlayerPanel();
+      renderAccountButtons();
+      showPopup('Thông báo', 'Bạn đã đăng xuất thành công. Hẹn gặp lại!');
+    };
+
+    // Nếu chọn KHÔNG -> Đóng popup và ở lại
+    document.getElementById('confirmLogoutNo').onclick = () => {
+      hidePopup();
+    };
+  };
+
+  // ------------------ Logic Giải phóng tài khoản với Xác nhận ------------------
+  btnReleaseAccount.onclick = () => {
+    if (!current) return showPopup('Lỗi', 'Chưa đăng nhập tài khoản nào');
+
+    const html = `
+      <div style="text-align:left">
+        <p style="margin-bottom:15px; line-height:1.6">
+          ⚠️ <b>CẢNH BÁO QUAN TRỌNG:</b><br>
+          Hành động này sẽ xóa vĩnh viễn toàn bộ dữ liệu của tài khoản <b>${current}</b> bao gồm: 
+          Vàng, JoyPoint và tất cả Skin trong kho.<br><br>
+          Bạn có chắc chắn muốn tiếp tục không?
+        </p>
+        <div style="display:flex; gap:10px; margin-top:15px">
+          <button class="btn" id="confirmReleaseYes" style="flex:1; background:#ef4444">Có, xóa hết</button>
+          <button class="btn" id="confirmReleaseNo" style="flex:1; background:#475569">Không, giữ lại</button>
+        </div>
+      </div>
+    `;
+
+    showPopup('Xác nhận giải phóng', html);
+
+    // Nếu chọn CÓ -> Thực hiện reset dữ liệu
+    document.getElementById('confirmReleaseYes').onclick = () => {
+      const all = loadAll();
+      const accName = current;
+      
+      // Khởi tạo lại dữ liệu tài khoản về mặc định
+      all[accName] = {
+        name: accName, 
+        money: 0, 
+        joy: 0, 
+        spinsUsed: 0, 
+        inventory: [], 
+        spinLog: [],
+        firstSingleDiscount: true, 
+        firstTenDiscount: true, 
+        activeDevice: null, 
+        activeSince: null, 
+        firstLoginDone: false
+      };
+      
+      saveAll(all);
+      current = null;
+      hidePopup(); // Đóng popup xác nhận
+      refreshPlayerPanel();
+      renderAccountButtons();
+      showPopup('Thông báo', `Đã xoá sạch dữ liệu tài khoản <b>${accName}</b> thành công!`);
+    };
+
+    // Nếu chọn KHÔNG -> Chỉ cần đóng popup
+    document.getElementById('confirmReleaseNo').onclick = () => {
+      hidePopup();
+    };
+  };
+
+  // ------------------ Ownership modal ------------------
+  function showOwnershipModal() {
+    const html = `
+      <div style="text-align:left">
+        <div style="font-weight:700;margin-bottom:8px">Bạn đã sở hữu skin Rouie tuần lộc hoặc Ilumia nữ chúa tuyết chưa?</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button class="btn" id="opt1">Đã có Rouie tuần lộc</button>
+          <button class="btn" id="opt2">Đã có Ilumia nữ chúa tuyết</button>
+          <button class="btn" id="opt3">Chưa có cả hai</button>
+          <button class="btn" id="opt4">Đã có cả hai</button>
+        </div>
+      </div>`;
+    showPopup('Quà tân thủ', html);
+
+    function handleChoice(action, msg) {
+      hidePopup();
+      const all = loadAll();
+      all[current].firstLoginDone = true;
+      saveAll(all);
+      action();
+      showPopup('Chúc mừng', msg);
+    }
+
+    document.getElementById('opt1').onclick = () => handleChoice(() => addItem(current, 'Ilumia nữ chúa tuyết'), 'Bạn nhận được Ilumia nữ chúa tuyết!');
+    document.getElementById('opt2').onclick = () => handleChoice(() => addItem(current, 'Rouie tuần lộc đáng yêu'), 'Bạn nhận được Rouie tuần lộc đáng yêu!');
+    document.getElementById('opt3').onclick = () => {
+      const pick = Math.random() < 0.5 ? 'Rouie tuần lộc đáng yêu' : 'Ilumia nữ chúa tuyết';
+      handleChoice(() => addItem(current, pick), 'Bạn nhận được: ' + pick);
+    };
+    document.getElementById('opt4').onclick = () => handleChoice(() => addItem(current, 'Thẻ Garena 20k'), 'Bạn nhận được Thẻ Garena 20k!');
+  }
+
+  function addItem(accName, item) {
+    const all = loadAll();
+    all[accName].inventory.push({ item, ts: Date.now() });
+    saveAll(all);
+    refreshPlayerPanel();
+  }
+
+  // ------------------ Gacha logic (ĐÃ SỬA LỖI *****) ------------------
+  function weightedPick() {
+    const r = Math.random();
+    let cumulative = 0; // Sửa từ ***** thành cumulative
+    for (const t of gachaTrees) {
+      cumulative += t.rate;
+      if (r < cumulative) return t;
+    }
+    return gachaTrees[gachaTrees.length - 1];
+  }
+
+  spin1Btn.onclick = () => {
+    if (!current) return showPopup('Lỗi', 'Chưa đăng nhập');
+    const all = loadAll();
+    const acc = all[current];
+    if (acc.spinsUsed >= 50) return showPopup('Giới hạn', 'Đã hết lượt quay (tối đa 50)');
+    const cost = acc.firstSingleDiscount ? 4500 : 5000;
+    if (acc.joy < cost) return showPopup('Thiếu Joy', 'Không đủ JoyPoint');
+    acc.joy -= cost;
+    acc.spinsUsed += 1;
+    acc.firstSingleDiscount = false;
+    const prize = weightedPick();
+    handleGachaPrize(acc, prize);
+    all[current] = acc;
+    saveAll(all);
+    refreshPlayerPanel();
+    updateGachaLog(`Quay 1: ${prize.name}`);
+    showPopup('Kết quả', `Bạn nhận được: ${prize.name}`);
+  };
+
+  spin10Btn.onclick = () => {
+    if (!current) return showPopup('Lỗi', 'Chưa đăng nhập');
+    const all = loadAll();
+    const acc = all[current];
+    const remaining = 50 - acc.spinsUsed;
+    if (remaining <= 0) return showPopup('Giới hạn', 'Đã hết lượt quay');
+    const num = Math.min(10, remaining);
+    const cost = acc.firstTenDiscount ? 45000 : 50000;
+    if (acc.joy < cost) return showPopup('Thiếu Joy', 'Không đủ JoyPoint');
+    acc.joy -= cost;
+    acc.spinsUsed += num;
+    acc.firstTenDiscount = false;
+    let res = [];
+    for (let i = 0; i < num; i++) {
+      const p = weightedPick();
+      handleGachaPrize(acc, p);
+      res.push(p.name);
+    }
+    all[current] = acc;
+    saveAll(all);
+    refreshPlayerPanel();
+    updateGachaLog(`Quay 10: ${res.length} quà`);
+    showPopup('Kết quả', `Nhận được: <br>${res.join('<br>')}`);
+  };
+
+  function handleGachaPrize(acc, prize) {
+    if (prize.name.includes('Joypoint')) {
+      const amt = parseInt(prize.name.replace(/[^0-9]/g, ''));
+      acc.joy += amt;
+    } else {
+      acc.inventory.push({ item: prize.name, ts: Date.now() });
+    }
+  }
+
+  function updateGachaLog(text) {
+    gachaLog.innerHTML = `<div>${new Date().toLocaleTimeString()}: ${text}</div>` + gachaLog.innerHTML;
+  }
+
+  // ------------------ Topup với Xác nhận Quản lý ------------------
+
+  // Hàm xử lý chung cho việc hỏi xác nhận
+  function askTopupConfirmation(type, amount, applyFunc) {
+    const html = `
+      <div style="text-align:left">
+        <p style="margin-bottom:15px; line-height:1.5">
+          Bạn đang nạp <b>${formatN(amount)} ${type}</b>.<br>
+          <span style="color:red">⚠️ Quan trọng:</span> Bạn đã thông báo số tiền này cho quản lý/người tổ chức sự kiện chưa?
+        </p>
+        <div style="display:flex; gap:10px; margin-top:15px">
+          <button class="btn" id="confirmTopupYes" style="flex:1">Rồi, đã báo</button>
+          <button class="btn" id="confirmTopupNo" style="flex:1; background:#eee; color:#333">Chưa, để báo sau</button>
+        </div>
+      </div>
+    `;
+    
+    showPopup('Xác nhận nạp tiền', html);
+
+    // Nếu chọn ĐÃ BÁO -> Tiến hành nạp
+    document.getElementById('confirmTopupYes').onclick = () => {
+      hidePopup();
+      applyFunc();
+    };
+
+    // Nếu chọn CHƯA -> Thông báo từ chối
+    document.getElementById('confirmTopupNo').onclick = () => {
+      hidePopup();
+      showPopup('Yêu cầu bị từ chối', 'Vui lòng báo cho quản lý trước khi thực hiện nạp tiền vào hệ thống!');
+    };
+  }
+
+  // Nút Nạp Tiền
+  doTopMoney.onclick = () => {
+    const v = parseInt(topMoneyInput.value);
+    if (!current) return showPopup('Lỗi', 'Vui lòng đăng nhập trước!');
+    if (isNaN(v) || v <= 0) return showPopup('Lỗi', 'Vui lòng nhập số tiền hợp lệ');
+
+    askTopupConfirmation('VNĐ', v, () => {
+      const all = loadAll();
+      all[current].money += v;
+      saveAll(all);
+      refreshPlayerPanel();
+      showPopup('Thành công', `Bạn đã nạp thành công ${formatN(v)}₫ vào tài khoản.`);
+    });
+  };
+
+  // Nút Nạp JoyPoint
+  doTopJoy.onclick = () => {
+    const v = parseInt(topJoyInput.value);
+    if (!current) return showPopup('Lỗi', 'Vui lòng đăng nhập trước!');
+    if (isNaN(v) || v <= 0) return showPopup('Lỗi', 'Vui lòng nhập số JoyPoint hợp lệ');
+
+    askTopupConfirmation('JoyPoint', v, () => {
+      const all = loadAll();
+      all[current].joy += v;
+      saveAll(all);
+      refreshPlayerPanel();
+      showPopup('Thành công', `Bạn đã nhận thêm ${formatN(v)} JoyPoint.`);
+    });
+  };
+  
+  // ------------------ Logic Vòng Quay May Mắn ------------------
+
+// Quay bằng Tiền (50,000₫)
+wheelMoneyBtn.onclick = () => {
+    if (!current) return showPopup('Lỗi', 'Bạn cần đăng nhập để quay!');
+    
+    const all = loadAll();
+    const acc = all[current];
+    
+    const cost = 50000;
+    if (acc.money < cost) return showPopup('Thiếu tiền', `Bạn cần ${formatN(cost)}₫ để quay.`);
+    
+    // Trừ tiền
+    acc.money -= cost;
+    
+    // Chọn skin ngẫu nhiên (tỷ lệ bằng nhau)
+    const prize = wheelSkins[Math.floor(Math.random() * wheelSkins.length)];
+    
+    // Thêm vào kho
+    acc.inventory.push({ item: prize, ts: Date.now() });
+    
+    // Lưu và cập nhật
+    all[current] = acc;
+    saveAll(all);
+    refreshPlayerPanel();
+    
+    // Cập nhật log và thông báo
+    wheelLog.innerHTML = `<div>${new Date().toLocaleTimeString()}: Nhận <b>${prize}</b> (Quay bằng tiền)</div>` + wheelLog.innerHTML;
+    showPopup('Chúc mừng', `Vòng quay may mắn đã dừng lại ở skin: <br><b>${prize}</b>`);
+};
+
+// Quay bằng JoyPoint (500,000 Joy)
+wheelJoyBtn.onclick = () => {
+    if (!current) return showPopup('Lỗi', 'Bạn cần đăng nhập để quay!');
+    
+    const all = loadAll();
+    const acc = all[current];
+    
+    const cost = 500000;
+    if (acc.joy < cost) return showPopup('Thiếu Joy', `Bạn cần ${formatN(cost)} JoyPoint để quay.`);
+    
+    // Trừ Joy
+    acc.joy -= cost;
+    
+    // Chọn skin ngẫu nhiên
+    const prize = wheelSkins[Math.floor(Math.random() * wheelSkins.length)];
+    
+    // Thêm vào kho
+    acc.inventory.push({ item: prize, ts: Date.now() });
+    
+    // Lưu và cập nhật
+    all[current] = acc;
+    saveAll(all);
+    refreshPlayerPanel();
+    
+    // Cập nhật log và thông báo
+    wheelLog.innerHTML = `<div>${new Date().toLocaleTimeString()}: Nhận <b>${prize}</b> (Quay bằng Joy)</div>` + wheelLog.innerHTML;
+    showPopup('Chúc mừng', `Vòng quay may mắn đã dừng lại ở skin: <br><b>${prize}</b>`);
+};
+
+  // ------------------ Snow animation (Phiên bản tối ưu hóa cao) ------------------
+  (function () {
+    const canvas = document.getElementById('snow');
+    const ctx = canvas.getContext('2d', { alpha: true }); // Bật tối ưu alpha
+    const appFrame = document.getElementById('app');
+
+    // Tạo một canvas ảo để vẽ sẵn 3 loại hạt tuyết mẫu (nhỏ, trung, lớn)
+    const snowCache = document.createElement('canvas');
+    const sCtx = snowCache.getContext('2d');
+    snowCache.width = 20;
+    snowCache.height = 10;
+    
+    // Vẽ 3 hạt mẫu vào bộ nhớ đệm
+    function preRender() {
+      sCtx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      sCtx.beginPath(); sCtx.arc(2, 5, 2, 0, Math.PI*2); sCtx.fill(); // Hạt lớn
+      sCtx.beginPath(); sCtx.arc(8, 5, 1.5, 0, Math.PI*2); sCtx.fill(); // Hạt vừa
+      sCtx.beginPath(); sCtx.arc(14, 5, 1, 0, Math.PI*2); sCtx.fill(); // Hạt nhỏ
+    }
+    preRender();
+
+    function resize() {
+      const rect = appFrame.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+      canvas.style.left = rect.left + 'px';
+      canvas.style.top = rect.top + 'px';
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+
+    const particles = [];
+    const particleCount = 70; // Giảm số lượng hạt xuống mức vừa đủ (70 thay vì 100)
+
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 3 + 1,
+        v: Math.random() * 1 + 0.5, // Tốc độ rơi cố định để đỡ tính toán toán học
+        cacheX: (i % 3) * 6 // Chọn 1 trong 3 hạt mẫu đã vẽ sẵn
+      });
+    }
+
+    function draw() {
+      // Sử dụng clearRect thay vì vẽ đè màu
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        
+        // Thay vì vẽ arc, ta dùng drawImage từ cache (cực nhanh)
+        ctx.drawImage(snowCache, p.cacheX, 0, 6, 10, p.x, p.y, 6, 10);
+        
+        p.y += p.v;
+        
+        if (p.y > canvas.height) {
+          p.y = -10;
+          p.x = Math.random() * canvas.width;
+        }
+      }
+      requestAnimationFrame(draw);
+    }
+
+    setTimeout(resize, 100);
+    draw();
+  })();
+
+  // ------------------ Init ------------------
+  initialize();
+  renderAccountButtons();
+  renderGachaTrees();
+  refreshPlayerPanel();
+
+  setInterval(() => {
+    if (!current) return;
+    const all = loadAll();
+    if (all[current]) {
+      all[current].activeSince = Date.now();
+      saveAll(all);
+    }
+  }, 5000);
+  </script></body>
+</html>
+
