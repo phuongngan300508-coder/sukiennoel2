@@ -281,6 +281,21 @@
     text-overflow: ellipsis;
     font-size: 11px; /* Hạ size xuống một chút để vừa tên dài */
 }
+
+    #wheelPanel .small {
+    white-space: normal; /* Cho phép xuống dòng nếu cần */
+    font-size: 10px;    /* Nhỏ hơn một chút để vừa 2 cột */
+    line-height: 1.3;
+    display: flex;
+    align-items: flex-start;
+}
+
+/* Trên màn hình lớn (PC), cho chữ to lên lại cho dễ đọc */
+@media (min-width: 768px) {
+    #wheelPanel .small {
+        font-size: 11.5px;
+    }
+}
   </style>
 </head>
 <body>
@@ -339,7 +354,7 @@
           <h3>🎡 Vòng Quay Skin</h3>
           <div class="small" style="text-align: center; margin-bottom: 10px;">Mỗi người chơi chỉ được quay một lần.</div>
           
-          <div style="display:grid;grid-template-columns:repeat(1,1fr); gap:6px; margin-bottom: 15px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 12px; border: 1px solid var(--glass-border);">
+          <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 12px; border: 1px solid var(--glass-border);">
             <div class="small">• Alice bé gấu tuyết 199qh</div>
             <div class="small">• Dextra quận chúa tuyết 199qh</div>
             <div class="small">• Sinestrea tiểu thư băng giá 199qh</div>
