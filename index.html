@@ -296,6 +296,27 @@
         font-size: 11.5px;
     }
 }
+
+    /* Giới hạn chiều cao cho danh sách tài khoản đã lưu */
+    #accountButtons {
+      max-height: 150px; /* Henry có thể chỉnh lại con số này tùy ý */
+      overflow-y: auto;
+      padding-right: 5px;
+      margin-bottom: 10px;
+    }
+
+    /* Tùy chỉnh thanh cuộn cho nhỏ gọn và đẹp hơn (vibe kính) */
+    #accountButtons::-webkit-scrollbar {
+      width: 4px;
+    }
+    #accountButtons::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+    }
+    #accountButtons::-webkit-scrollbar-thumb {
+      background: var(--accent);
+      border-radius: 10px;
+    }
   </style>
 </head>
 <body>
