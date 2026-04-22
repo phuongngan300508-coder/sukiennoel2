@@ -273,6 +273,14 @@
     .guide-content::-webkit-scrollbar {
       display: none;             /* Chrome, Safari, Opera */
     }
+
+    /* Thêm vào <style> nếu bạn muốn danh sách skin chia 2 cột mà vẫn đẹp */
+#wheelPanel .small {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 11px; /* Hạ size xuống một chút để vừa tên dài */
+}
   </style>
 </head>
 <body>
@@ -330,12 +338,18 @@
         <div class="panel" id="wheelPanel">
           <h3>🎡 Vòng Quay Skin</h3>
           <div class="small" style="text-align: center; margin-bottom: 10px;">Mỗi người chơi chỉ được quay một lần.</div>
-          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px; margin-bottom: 15px;">
-            <div class="small">• Alice Bé Gấu</div><div class="small">• Dextra Quận Chúa</div>
-            <div class="small">• Sinestrea Tiểu Thư</div><div class="small">• Valhein Hoàng Tử</div>
-            <div class="small">• Yorn Nam Thần</div><div class="small">• Ryoma Đặc Nhiệm</div>
-            <div class="small">• Wisp Máy Phát Quà</div><div class="small">• Ngộ Không Đặc Vụ</div>
+          
+          <div style="display:grid;grid-template-columns:repeat(1,1fr); gap:6px; margin-bottom: 15px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 12px; border: 1px solid var(--glass-border);">
+            <div class="small">• Alice bé gấu tuyết 199qh</div>
+            <div class="small">• Dextra quận chúa tuyết 199qh</div>
+            <div class="small">• Sinestrea tiểu thư băng giá 199qh</div>
+            <div class="small">• Valhein hoàng tử băng 199qh</div>
+            <div class="small">• Yorn nam thần giáng sinh 199qh</div>
+            <div class="small">• Ryoma đặc nhiệm giáng sinh 199qh</div>
+            <div class="small">• Wisp máy phát quà 199qh</div>
+            <div class="small">• Ngộ không đặc vụ băng hầu 199qh</div>
           </div>
+
           <div style="display:flex;gap:12px;">
             <button class="btn" id="wheelMoneyBtn" style="flex:1; background: #059669;">50,000₫ / Lượt</button>
             <button class="btn" id="wheelJoyBtn" style="flex:1;">500,000 Joy / Lượt</button>
@@ -510,8 +524,14 @@
   ];
 
   const wheelSkins = [
-    'Alice bé gấu tuyết 199qh', 'Dextra quận chúa tuyết 199qh', 'Sinestrea tiểu thư băng giá 199qh', 'Valhein hoàng tử băng 199qh',
-    'Yorn nam thần giáng sinh 199qh', 'Ryoma đặc nhiệm giáng sinh 199qh', 'Wisp máy phát quà 199qh', 'Ngộ không đặc vụ băng hầu 199qh'
+    'Alice bé gấu tuyết 199qh', 
+    'Dextra quận chúa tuyết 199qh', 
+    'Sinestrea tiểu thư băng giá 199qh', 
+    'Valhein hoàng tử băng 199qh',
+    'Yorn nam thần giáng sinh 199qh', 
+    'Ryoma đặc nhiệm giáng sinh 199qh', 
+    'Wisp máy phát quà 199qh', 
+    'Ngộ không đặc vụ băng hầu 199qh'
   ];
 
   // ------------------ Helpers ------------------
