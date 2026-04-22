@@ -625,7 +625,7 @@
     }
   }
 
-    function renderTopupLog() {
+   function renderTopupLog() {
     const logList = document.getElementById('topupLogList');
     if (!current) {
       logList.innerHTML = '<div class="small" style="opacity:0.5; text-align:center; padding-top:10px;">Đăng nhập để xem lịch sử</div>';
@@ -641,11 +641,13 @@
     }
 
     logList.innerHTML = logs.map(l => `
-      <div style="border-bottom: 1px solid rgba(255,255,255,0.05); padding: 5px 0; font-size: 11px;">
-        <span style="color: var(--text-muted)">[${l.time}]</span> 
-        <span style="color: ${l.type === 'VNĐ' ? '#fbbf24' : 'var(--accent)'}">+${formatN(l.amount)} ${l.type}</span>
+      <div style="border-bottom: 1px solid rgba(255,255,255,0.05); padding: 8px 0; font-size: 11px; line-height: 1.4;">
+        <div style="color: var(--text-muted); font-size: 10px;">🕒 ${l.time}</div>
+        <div style="font-weight: bold; color: ${l.type === 'VNĐ' ? '#fbbf24' : 'var(--accent)'}">
+          +${formatN(l.amount)} ${l.type}
+        </div>
       </div>
-    `).reverse().join(''); // Đảo ngược để nạp mới nhất hiện lên đầu
+    `).reverse().join('');
   }
     
   function renderGachaTrees() {
@@ -918,17 +920,24 @@
     document.getElementById('confirmTopupYes').onclick = () => {
       hidePopup();
       
-      // Logic ghi log mới
       const all = loadAll();
       const now = new Date();
-      const timeStr = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+      
+      // Định dạng thời gian chi tiết: HH:mm - DD/MM/YYYY
+      const hh = now.getHours().toString().padStart(2, '0');
+      const min = now.getMinutes().toString().padStart(2, '0');
+      const dd = now.getDate().toString().padStart(2, '0');
+      const mm = (now.getMonth() + 1).toString().padStart(2, '0');
+      const yyyy = now.getFullYear();
+      
+      const timeStr = `${hh}:${min} - ${dd}/${mm}/${yyyy}`;
       
       if (!all[current].topupLog) all[current].topupLog = [];
       all[current].topupLog.push({ amount: amount, type: type, time: timeStr });
       saveAll(all);
 
       applyFunc();
-      renderTopupLog(); // Cập nhật danh sách log ngay lập tức
+      renderTopupLog();
     };
 
     document.getElementById('confirmTopupNo').onclick = () => {
